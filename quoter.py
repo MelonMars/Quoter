@@ -4,6 +4,7 @@ from langchain_huggingface.llms import HuggingFacePipeline
 from langchain.prompts import PromptTemplate
 import requests
 from PIL import Image, ImageFont, ImageDraw
+import textwrap
 
 def create_quote(model, max_new_tokens: int, rep=0) -> str:
     if rep == 0:
@@ -27,7 +28,7 @@ def create_quote(model, max_new_tokens: int, rep=0) -> str:
     if quote.__contains__("def "):
         quote = create_quote(TextMaker, max_new_tokens, 1)
 
-    return quote.splitlines()[1]
+    return "[" + quote.splitlines()[0]
 
 
 def create_image(prompt: str, imageURL: str, outputPath: str):
@@ -51,24 +52,19 @@ def create_image(prompt: str, imageURL: str, outputPath: str):
     else:
         print(f"Request failed with status code {response.status_code}")
 
-def get_wrapped_text(text: str, font: ImageFont.ImageFont,
-                     line_length: int):
-    lines = ['']
-    for word in text.split():
-        line = f'{lines[-1]} {word}'.strip()
-        if font.getlength(line) <= line_length:
-            lines[-1] = line
-        else:
-            lines.append(word)
-    return '\n'.join(lines)
-
 
 def overlay_text_on_image(image_path: str, text: str):
+    print(text)
     image = Image.open(image_path)
     W, H = image.size
     draw = ImageDraw.Draw(image)
     font = ImageFont.truetype("RobotoSlab-Black.ttf", 32)
     _, _, w, h = draw.textbbox((0, 0), text, font=font)
-    text = get_wrapped_text(text, font, W)
+    margin = offset = 40
+    for line in textwrap.wrap(text, width=40):
+        w, h = draw.textsize(line, font=font)
+        draw.text((margin, offset), line, font=font)
+        offset += font.getsize(line)[1]
+
     draw.text(((W-w)/2, (H-h)/2), text, font=font, fill='white')
     image.save(image_path)
