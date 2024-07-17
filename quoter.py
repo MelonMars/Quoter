@@ -15,20 +15,19 @@ def create_quote(model, max_new_tokens: int, rep=0) -> str:
     else:
         TextMaker = model
     prompt = PromptTemplate.from_template("""
-    User: Make a quote that sounds really smart, but in reality is actually really dumb and nonsensical. Also come up with a background image in parentheses. DO NOT WRITE ANY CODE FOR THE OUTPUT.
+    User: Make a quote that sounds really smart, but in reality is actually really dumb and nonsensical. Also come up with a background image in brackets. Only use one image. Do not make it about cats. DO NOT WRITE ANY CODE FOR THE OUTPUT.
     AI: [Image of brick wall] At times, a street is nothing but a street.
-    User: Make a quote that sounds really smart, but in reality is actually really dumb and nonsensical. Also come up with a background image in parentheses. DO NOT WRITE ANY CODE FOR THE OUTPUT.
+    User: Make a quote that sounds really smart, but in reality is actually really dumb and nonsensical. Also come up with a background image in brackets. Only use one image. Do not make it about cats. DO NOT WRITE ANY CODE FOR THE OUTPUT.
     AI: [Image of the sunset] I like watermelons very much.
-    User: Make a quote that sounds really smart, but in reality is actually really dumb and nonsensical. Also come up with a background image in parentheses. DO NOT WRITE ANY CODE FOR THE OUTPUT.
-    AI: 
-    """)
+    User: Make a quote that sounds really smart, but in reality is actually really dumb and nonsensical. Also come up with a background image in brackets. Only use one image. Do not make it about cats. DO NOT WRITE ANY CODE FOR THE OUTPUT.
+    AI: [""")
     chain = prompt | TextMaker
     quote = chain.invoke({})
     quote = quote.replace(prompt.format(), "")
     if quote.__contains__("def "):
         quote = create_quote(TextMaker, max_new_tokens, 1)
 
-    return quote.splitlines()[0]
+    return quote.splitlines()[1]
 
 
 def create_image(prompt: str, imageURL: str, outputPath: str):
@@ -70,7 +69,6 @@ def overlay_text_on_image(image_path: str, text: str):
     draw = ImageDraw.Draw(image)
     font = ImageFont.truetype("RobotoSlab-Black.ttf", 32)
     _, _, w, h = draw.textbbox((0, 0), text, font=font)
-    # https://blog.lipsumarium.com/caption-memes-in-python/
     text = get_wrapped_text(text, font, W)
     draw.text(((W-w)/2, (H-h)/2), text, font=font, fill='white')
     image.save(image_path)

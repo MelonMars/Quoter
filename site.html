@@ -6,41 +6,28 @@
 </head>
 <body>
     <h1>Quote generator</h1>
-    <p><sub>MODIFYING THE DEFAULT PARAMETERS IS NOT ADVISED UNLESS YOU KNOW WHAT YOU'RE DOING!!</sub></p>
-    <form id="imageForm">
-        <label for="model">Model:</label>
-        <textarea id="model" rows="1" cols="10">microsoft/phi-2</textarea>
-        <br>
-        <label for="max_new_tokens">Max New Tokens:</label>
-        <textarea id="maxNewTokens" rows="1" cols="3">40</textarea>
-        <br>
-        <label for="imageURL">Max New Tokens:</label>
-        <textarea id="imageURL" rows="1" cols="3">http://127.0.0.1:7860/</textarea>
-        <br>
-        <label for="out">Out:</label>
-        <textarea id="out" rows="1" cols="3">out.png</textarea>
-        <br>
-        <label for="nameFile">nameFile:</label>
-        <textarea id="nameFile" rows="1" cols="3">names.txt</textarea>
-        <br>
-        <button type="submit">Generate Quote!</button>
-    </form>
+    <button type="submit", onclick="generateQuote()">Generate Quote!</button>
     <h2>Quote:</h2>
     <div>
         <img id="quote" src="" alt="Quote", style="display:none;">
     </div>
 
     <script>
-        document.getElementById('imageForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const model = document.getElementById('model').value;
-            const maxNewTokens = document.getElementById('maxNewTokens').value;
-            const imageURL = document.getElementById('imageURL').value;
-            const out = document.getElementById('out').value;
-            const nameFile = document.getElementById('nameFile').value;
-
-            const url = `${imageURL}?model=${model}&max_new_tokens=${maxNewTokens}&out=${out}&nameFile=${nameFile}`;
-            
+            async function generateQuote() {
+            try {
+                const response = await fetch("http://localhost:8000/quote");
+                if (response.ok) {
+                    const data = await response.json();
+                    const base64Image = data.Message;
+                    document.getElementById('quote').src = `data:image/png;base64,${base64Image}`;
+                    document.getElementById('quote').style.display = 'block';
+                } else {
+                    console.error('Error fetching image:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
     </script>
 </body>
 </html>

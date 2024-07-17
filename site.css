@@ -1,0 +1,10 @@
+body {
+    background-color: #6d6464;
+}
+
+img {
+  border-radius: 50%; /* Adjust the value to make it more or less rounded */
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
