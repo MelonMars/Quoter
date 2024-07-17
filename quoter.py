@@ -1,7 +1,9 @@
+import base64
+
 from langchain_huggingface.llms import HuggingFacePipeline
 from langchain.prompts import PromptTemplate
 import requests
-
+from PIL import Image, ImageFont, ImageDraw
 
 def create_quote(model, max_new_tokens: int, rep=0) -> str:
     if rep == 0:
@@ -44,8 +46,31 @@ def create_image(prompt: str, imageURL: str, outputPath: str):
     if response.status_code == 200:
         with open(outputPath, 'wb') as f:
             try:
-                f.write(response.json()['images'][0])
+                f.write(base64.b64decode(response.json()['images'][0]))
             except KeyError:
                 print("Error: ", response.json())
     else:
         print(f"Request failed with status code {response.status_code}")
+
+def get_wrapped_text(text: str, font: ImageFont.ImageFont,
+                     line_length: int):
+    lines = ['']
+    for word in text.split():
+        line = f'{lines[-1]} {word}'.strip()
+        if font.getlength(line) <= line_length:
+            lines[-1] = line
+        else:
+            lines.append(word)
+    return '\n'.join(lines)
+
+
+def overlay_text_on_image(image_path: str, text: str):
+    image = Image.open(image_path)
+    W, H = image.size
+    draw = ImageDraw.Draw(image)
+    font = ImageFont.truetype("RobotoSlab-Black.ttf", 32)
+    _, _, w, h = draw.textbbox((0, 0), text, font=font)
+    # https://blog.lipsumarium.com/caption-memes-in-python/
+    text = get_wrapped_text(text, font, W)
+    draw.text(((W-w)/2, (H-h)/2), text, font=font, fill='white')
+    image.save(image_path)
