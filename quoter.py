@@ -58,13 +58,24 @@ def overlay_text_on_image(image_path: str, text: str):
     image = Image.open(image_path)
     W, H = image.size
     draw = ImageDraw.Draw(image)
-    font = ImageFont.truetype("RobotoSlab-Black.ttf", 32)
-    _, _, w, h = draw.textbbox((0, 0), text, font=font)
-    margin = offset = 40
-    for line in textwrap.wrap(text, width=40):
-        w, h = draw.textsize(line, font=font)
-        draw.text((margin, offset), line, font=font)
-        offset += font.getsize(line)[1]
+    font = ImageFont.truetype("RobotoSlab-Black.ttf", 18)
+    chars = 0
+    chars_per_line = 40
+    lines = [[]]
+    for word in text.split(" "):
+        chars += len(word)
+        _, _, w, h = draw.textbbox((0, 0), word + " ", font=font)
+        if chars > chars_per_line:
+            chars = len(word)
+            lines.append([word])
+        else:
+            lines[-1].append(word)
 
-    draw.text(((W-w)/2, (H-h)/2), text, font=font, fill='white')
+    offset = 0
+    for line in lines:
+        _, _, w, h = draw.textbbox((0, 0), "".join(word+" " for word in line), font=font)
+        draw.text(((W - w) / 2, ((H - h) / 2) + offset), "".join(word+ " " for word in line), font=font, fill='white')
+        offset += h+5
+
+    # draw.text(((W-w)/2, (H-h)/2), text, font=font, fill='white')
     image.save(image_path)

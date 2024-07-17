@@ -4,6 +4,18 @@
     src: url("DancingScript-Medium.ttf");
 }
 
+@font-face {
+    font-family: 'Stencil';
+    font-style: normal;
+    src: url("Stencil.ttf");
+}
+
+@font-face {
+    font-family: 'Oswald';
+    font-style: normal;
+    src: url("Oswald-Regular.ttf");
+}
+
 body {
     background-color: #6d6464;
 }
@@ -19,4 +31,21 @@ img {
     margin-left: auto;
     margin-right: auto;
     width: 50%;
+}
+
+button {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+    padding: 30px;
+    background-color: purple;
+    box-shadow: none;
+    border-radius: 10px;
+    font-family: "Stencil", sans-serif;
+    font-size: 24px;
+}
+
+h2 {
+    font-family: Oswald, sans-serif;
 }
